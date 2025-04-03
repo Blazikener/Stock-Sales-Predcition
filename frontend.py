@@ -5,7 +5,6 @@ API_URL = "http://127.0.0.1:8000"
 
 st.title("Login to Prediction System")
 
-# Login Section
 username = st.text_input("Username")
 password = st.text_input("Password", type="password")
 
@@ -18,7 +17,6 @@ if st.button("Login"):
     else:
         st.error("Invalid credentials!")
 
-# Prediction Section (only visible after login)
 if "logged_in" in st.session_state and st.session_state["logged_in"]:
     st.subheader("Enter Data for Prediction")
 
@@ -31,11 +29,8 @@ if "logged_in" in st.session_state and st.session_state["logged_in"]:
     Reorder_Quantity = st.number_input("Reorder Quantity", value=20)
     Stock_Replenished = st.number_input("Stock Replenished", value=15)
 
-    # Properly formatted date input
     date = st.date_input("Select Date")
-    formatted_date = date.strftime("%Y-%m-%d")  # Ensures correct format
-
-    # Display formatted date for debugging
+    formatted_date = date.strftime("%Y-%m-%d")  
     st.write(f"Formatted Date: {formatted_date}")
 
     if st.button("Predict"):
