@@ -4,7 +4,6 @@ import pickle
 import pandas as pd
 import numpy as np
 
-# Load the model
 with open("LinearRegression.pkl", "rb") as file:
     model = pickle.load(file)
 
@@ -28,15 +27,12 @@ def greet():
 @app.post('/predict')
 def predict(data: InputData):
     try:
-        # Convert Date to numerical format
         date_obj = pd.to_datetime(data.Date, format="%Y-%m-%d").timestamp()
 
-        # Prepare input features
         features = np.array([[data.TV, data.Radio, data.Newspaper, data.Stock_Available,
                               data.Stock_Used, data.Restock_Threshold, data.Reorder_Quantity,
                               data.Stock_Replenished, date_obj]])
 
-        # Make prediction
         prediction = model.predict(features)
 
         return {"prediction": prediction.tolist()}  # Convert to JSON serializable format
