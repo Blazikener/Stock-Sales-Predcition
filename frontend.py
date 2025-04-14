@@ -1,5 +1,7 @@
 import streamlit as st
 import requests
+import subprocess
+import os
 
 API_URL = "http://127.0.0.1:8000"
 
@@ -18,16 +20,23 @@ if st.button("Login"):
         st.error("Invalid credentials!")
 
 if "logged_in" in st.session_state and st.session_state["logged_in"]:
+    if st.button("start Voice Assistant"):
+        script_path = os.path.abspath("voice_assistant_mcp.py") 
+        subprocess.Popen(["python", script_path], creationflags=subprocess.CREATE_NEW_CONSOLE)
+        st.info("Voice Assistant started in a new window!")
+
+    
     st.subheader("Enter Data for Prediction")
 
-    TV = st.number_input("TV Budget", value=1000.5)
-    Radio = st.number_input("Radio Budget", value=500.25)
-    Newspaper = st.number_input("Newspaper Budget", value=200.75)
-    Stock_Available = st.number_input("Stock Available", value=50)
-    Stock_Used = st.number_input("Stock Used", value=10)
-    Restock_Threshold = st.number_input("Restock Threshold", value=5)
-    Reorder_Quantity = st.number_input("Reorder Quantity", value=20)
-    Stock_Replenished = st.number_input("Stock Replenished", value=15)
+    TV = st.text_input("Enter TV Budget")
+    Radio = st.text_input("Enter Radio Budget")
+    Newspaper = st.text_input("Enter Newspaper Budget")
+    Stock_Available = st.text_input("Enter Stock Available")
+    Stock_Used = st.text_input("Enter Stock Used")
+    Restock_Threshold = st.text_input("Enter Restock Threshold")
+    Reorder_Quantity = st.text_input("Enter Reorder Quantity")
+    Stock_Replenished = st.text_input("Enter Stock Replenished")
+
 
     date = st.date_input("Select Date")
     formatted_date = date.strftime("%Y-%m-%d")  
