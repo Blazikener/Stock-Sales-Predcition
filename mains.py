@@ -25,6 +25,7 @@ app.add_middleware(
 
 users_db = {"yasir": {"password": "1234"}, "admin": {"password": "adminpass"}}
 
+#Log in System using logging library
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
 class UserLogin(BaseModel):
@@ -55,6 +56,7 @@ class InputData(BaseModel):
 def greet():
     return {"message": "Hello"}
 
+#Prediction for output
 @app.post('/predict')
 def predict(data: InputData):
     try:
@@ -68,6 +70,7 @@ def predict(data: InputData):
         logging.error(f"Prediction error: {str(e)}")
         return {"error": str(e)}
 
+#Calls the Voice Assistant
 @app.post("/start-voice-assistant")
 async def start_voice_assistant():
     thread = threading.Thread(target=run_voice_assistant)
@@ -87,6 +90,7 @@ def run_voice_assistant():
     with gpt_model.chat_session() as session:
         while True:
             try:
+                #Listening Command
                 with mic as source:
                     print("Listening for command...")
                     recognizer.adjust_for_ambient_noise(source)
@@ -106,6 +110,7 @@ def run_voice_assistant():
                 if "stock" in prompt.lower():
                     latest = inventory_df.iloc[-1]
                     speak(f"Currently, {latest['Stock_Available']} units are available.")
+                    
                 elif "top selling" in prompt.lower() or "last week" in prompt.lower():
                     inventory_df['Date'] = pd.to_datetime(inventory_df['Date'])
                     last_week = inventory_df[inventory_df["Date"] > datetime.now() - pd.Timedelta(days=7)]
