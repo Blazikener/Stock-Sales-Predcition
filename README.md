@@ -13,15 +13,9 @@ To create a smart agent that’s usable in real retail scenarios
 
 Future Improvements
 
-🛠 Installation
+Installation
 Make sure you have Python 3.8+ installed.
-
-Install dependencies:
-
-bash
-Copy
-Edit
-pip install -r requirements.txt
+Also make sure to install all the docs from the repository.
 
 Place your CSV file:
 
