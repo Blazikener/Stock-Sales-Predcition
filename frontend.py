@@ -10,6 +10,7 @@ st.title("Login to Prediction System")
 username = st.text_input("Username")
 password = st.text_input("Password", type="password")
 
+#Login Button
 if st.button("Login"):
     response = requests.post(f"{API_URL}/login", json={"username": username, "password": password})
     if response.status_code == 200:
@@ -20,6 +21,7 @@ if st.button("Login"):
         st.error("Invalid credentials!")
 
 if "logged_in" in st.session_state and st.session_state["logged_in"]:
+    #Voice Assistant Button
     if st.button("start Voice Assistant"):
         script_path = os.path.abspath("voice_assistant_mcp.py") 
         subprocess.Popen(["python", script_path], creationflags=subprocess.CREATE_NEW_CONSOLE)
@@ -27,7 +29,7 @@ if "logged_in" in st.session_state and st.session_state["logged_in"]:
 
     
     st.subheader("Enter Data for Prediction")
-
+    #Inputs for predictoin
     TV = st.text_input("Enter TV Budget")
     Radio = st.text_input("Enter Radio Budget")
     Newspaper = st.text_input("Enter Newspaper Budget")
@@ -36,12 +38,11 @@ if "logged_in" in st.session_state and st.session_state["logged_in"]:
     Restock_Threshold = st.text_input("Enter Restock Threshold")
     Reorder_Quantity = st.text_input("Enter Reorder Quantity")
     Stock_Replenished = st.text_input("Enter Stock Replenished")
-
-
     date = st.date_input("Select Date")
     formatted_date = date.strftime("%Y-%m-%d")  
     st.write(f"Formatted Date: {formatted_date}")
 
+    #Final prediction
     if st.button("Predict"):
         data = {
             "TV": TV, "Radio": Radio, "Newspaper": Newspaper,
