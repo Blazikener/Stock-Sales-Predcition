@@ -3,8 +3,11 @@ from pathlib import Path
 import pyttsx3
 import speech_recognition as sr
 import requests
+import pandas as pd
+from datetime import datetime, timedelta
 
-model_path = Path(r"C:\Users\abdulahad\Desktop\HackEra\tinyllama-1.1b-chat-v1.0.Q2_K.gguf")
+#Save the llm model in the same location as your other files
+model_path = Path(r"tinyllama-1.1b-chat-v1.0.Q2_K.gguf")
 model = GPT4All(model_name=str(model_path), allow_download=False)
 
 tts_engine = pyttsx3.init()
@@ -31,6 +34,7 @@ def listen():
         except:
             return None
 
+#Update context for mcp to understand
 def update_context(user_input, response):
     context_memory.append(f"User: {user_input}")
     context_memory.append(f"Assistant: {response}")
@@ -42,29 +46,50 @@ def generate_context_prompt(current_input):
     history = "\n".join(context_memory)
     return f"{history}\nUser: {current_input}\nAssistant:"
 
+CSV_PATH = "Advertising_Extended.csv"
+
 def handle_command(prompt):
-    if "predict sales" in prompt:
-        data = {
-            "TV": 1000.0, "Radio": 500.0, "Newspaper": 300.0,
-            "Stock_Available": 40, "Stock_Used": 10,
-            "Restock_Threshold": 5, "Reorder_Quantity": 20,
-            "Stock_Replenished": 10, "Date": "2025-04-14"
-        }
-        res = requests.post(f"{API_URL}/predict", json=data)
-        if res.ok:
-            return f"Predicted sales are {res.json()['prediction']}"
-        return "Failed to get prediction."
+    try:
+        df = pd.read_csv(CSV_PATH)
 
-    elif "top selling" in prompt:
-        res = requests.get(f"{API_URL}/top_selling")
-        return res.json().get("message", "Couldn’t fetch data.")
+        # Convert Date column to datetime
+        df['Date'] = pd.to_datetime(df['Date'])
 
-    elif "stock alert" in prompt:
-        res = requests.get(f"{API_URL}/stock_alerts")
-        return res.json().get("message", "Couldn’t fetch stock alerts.")
+        prompt = prompt.lower()
 
-    return None
+        # Predict sales using a simple formula or the latest row
+        if "predict sales" in prompt:
+            latest = df.iloc[-1]
+            sales_prediction = latest["TV"] * 0.045 + latest["Radio"] * 0.04 + latest["Newspaper"] * 0.02
+            return f"Predicted sales based on recent inputs: {sales_prediction:.2f} units."
 
+        # Stock alerts for low inventory
+        elif "stock alert" in prompt or "low stock" in prompt:
+            low_stock_df = df[df["Stock_Available"] <= df["Restock_Threshold"]]
+            if low_stock_df.empty:
+                return "All items are well stocked."
+            return f"{len(low_stock_df)} item(s) need restocking based on current data."
+
+        # Top-selling entries in the past 7 days
+        elif "top selling" in prompt or "top sales" in prompt:
+            last_week = datetime.now() - timedelta(days=7)
+            recent_df = df[df["Date"] >= last_week]
+
+            if recent_df.empty:
+                return "No sales data available for the last 7 days."
+
+            top_rows = recent_df.sort_values(by="Sales", ascending=False).head(3)
+            response = "📈 Top entries with highest sales in the last 7 days:\n"
+            for i, row in top_rows.iterrows():
+                response += f"- {row['Date'].date()} → {row['Sales']} units sold\n"
+            return response.strip()
+
+        return "Sorry, I didn’t understand that command."
+
+    except Exception as e:
+        return f"Error processing command: {e}"
+
+#Chatting wiht the bot
 with model.chat_session() as session:
     while True:
         try:
